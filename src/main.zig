@@ -1,38 +1,19 @@
 const std = @import("std");
+const Buffer = @import("buffer.zig").Buffer;
 
 const max_height = 24;
 
-pub const BufferError = error{OutofMemory};
-
-pub const Buffer = struct {
-    allocator: *std.mem.Allocator,
-    content: []u8,
-    line_it: std.mem.SplitIterator(u8, .any),
-
-    pub fn init(allocator: *std.mem.Allocator, content: []const u8) !Buffer {
-        return Buffer{
-            .allocator = allocator,
-            .content = try allocator.dupe(u8, content),
-            .line_it = std.mem.splitAny(u8, content, "\n"),
-        };
-    }
-
-    pub fn nextLine(self: *Buffer) ?[]const u8 {
-        return self.line_it.next();
-    }
-
-    pub fn lineReset(self: *Buffer) void {
-        self.line_it.index = 0;
-    }
+pub const Key = struct {
+    value: u32,
 };
 
-pub fn main() !void {
+pub fn main() anyerror!void {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
 
     var allocator = arena.allocator();
     const content = try readInput(&allocator);
-    var buffer = try Buffer.init(&allocator, content);
+    var buffer: Buffer = try Buffer.init(&allocator, content);
 
     var line_count: u32 = 1;
     while (buffer.nextLine()) |line| : (line_count += 1) {
