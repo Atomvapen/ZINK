@@ -1,0 +1,1 @@
+start cmd.exe /k "zig build run -- src/main.zig"
